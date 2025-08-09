@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import TagModel from "@/lib/models/tag";
+import dbConnect from "@/lib/db";
 
 export async function GET() {
   try {
+    await dbConnect();
     const tags = await TagModel.find();
 
     return NextResponse.json({
