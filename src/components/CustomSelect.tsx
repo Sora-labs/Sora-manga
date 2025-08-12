@@ -37,7 +37,9 @@ const CustomSelect = (props: Props) => {
       <SelectContent>
         <SelectGroup>
           {options.map((option) => (
-            <SelectItem value={option[value]}>{option[label]}</SelectItem>
+            <SelectItem key={option[value]} value={option[value]}>
+              {option[label]}
+            </SelectItem>
           ))}
         </SelectGroup>
       </SelectContent>

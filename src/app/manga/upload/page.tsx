@@ -7,50 +7,56 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useEffect, useState } from "react";
+import { DefaultValues, useForm } from "react-hook-form";
+import { keyof, z } from "zod";
+import { useCallback, useEffect, useState } from "react";
 import api from "@/app/_services/api";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Input } from "@/components/ui/input";
 import CustomSelect from "@/components/CustomSelect";
 import { mangaType } from "@/constant";
 import { Button } from "@/components/ui/button";
+import PreviewManga, { PreviewItem } from "@/components/Preview/PreviewManga";
+import { Textarea } from "@/components/ui/textarea";
+import { convertFileObjectToImage } from "@/app/_utils";
+import { redirect } from "next/navigation";
 
 const createMangaSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
   coverImage: z.instanceof(File).optional(),
   backgroundImage: z.instanceof(File).optional(),
-  tags: z
-    .object({
-      name: z.string(),
-      id: z.string(),
-    })
-    .array()
-    .length(0, "At least one tag is required"),
-  type: z.enum(["series", "oneshot"]),
+  tags: z.string().array().min(1, "At least one tag is required"),
+  type: z.string().min(1, "Type is required"),
+  previewTags: z.object().array(),
 });
 
+const defaultValues = {
+  name: "",
+  description: "",
+  coverImage: undefined,
+  backgroundImage: undefined,
+  tags: [],
+  type: "",
+  previewTags: [],
+};
+
 export default function UploadMangaPage() {
+  const [loading, setLoading] = useState(false);
   const formProps = useForm({
     resolver: zodResolver(createMangaSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      coverImage: undefined,
-      backgroundImage: undefined,
-      tags: [],
-    },
+    defaultValues,
     mode: "onChange",
   });
   const {
     handleSubmit,
-    setError,
+    watch,
     control,
     formState: { errors },
     setValue,
+    getValues,
   } = formProps;
+  watch();
   const [tagOptions, setTagOptions] = useState<any[]>([]);
 
   useEffect(() => {
@@ -73,10 +79,55 @@ export default function UploadMangaPage() {
     })();
   }, []);
 
-  const onSubmit = handleSubmit(async (data) => {});
+  const onSubmit = handleSubmit(async (data) => {
+    console.log(data);
+    setLoading(true);
+    // convert pbject to form data
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description ?? "");
+    // change later if we update the type feature
+    formData.append("type", "oneshot");
+    const tags = data.tags;
+    tags.forEach((tag) => formData.append(`tags`, tag));
+    formData.append("cover_image", data.coverImage as Blob);
+    formData.append("background_image", data.coverImage as Blob);
+    const response = await api.post("/api/mangas", formData);
+    setLoading(false);
+    if (!response.data?.is_success) {
+      alert("Failed to upload manga");
+      return;
+    }
+    redirect("/");
+  });
 
   const onMultiSelect = (value: string[]) => {
-    console.log("selecting tag", value);
+    console.log("selecting tag", value, tagOptions);
+    setValue("tags", value);
+    setValue(
+      "previewTags",
+      value.map((value) => tagOptions.find((tag) => tag.value === value))
+    );
+  };
+
+  const handleConvertPreviewItem = useCallback(() => {
+    const previewData = getValues();
+    const convertData: PreviewItem = {
+      title: previewData.name,
+      description: previewData.description,
+      coverImage: convertFileObjectToImage(previewData.coverImage),
+      backgroundImage: convertFileObjectToImage(previewData.backgroundImage),
+      // use preview
+      tags: previewData.previewTags,
+      type: previewData.type,
+    };
+    console.log(convertData);
+
+    return convertData;
+  }, [getValues()]);
+
+  const handleImageChange = (field: any, file?: File) => {
+    setValue(field, file);
   };
 
   return (
@@ -93,7 +144,10 @@ export default function UploadMangaPage() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel className="gap-0">
+                    Name
+                    <span className="text-red-500">*</span>
+                  </FormLabel>
                   <Input
                     {...field}
                     type="text"
@@ -112,14 +166,13 @@ export default function UploadMangaPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
-                  <Input
+                  <Textarea
                     {...field}
-                    type="text"
                     placeholder="Description"
                     className="input"
                   />
                   <FormDescription className="text-red-500">
-                    {errors.name?.message}
+                    {errors.description?.message}
                   </FormDescription>
                 </FormItem>
               )}
@@ -129,7 +182,10 @@ export default function UploadMangaPage() {
               name="tags"
               render={() => (
                 <FormItem>
-                  <FormLabel>Tags</FormLabel>
+                  <FormLabel className="gap-0">
+                    Tags
+                    <span className="text-red-500">*</span>
+                  </FormLabel>
                   <MultiSelect
                     asChild
                     options={tagOptions}
@@ -146,10 +202,13 @@ export default function UploadMangaPage() {
             />
             <FormField
               control={control}
-              name="tags"
+              name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel className="gap-0">
+                    Type
+                    <span className="text-red-500">*</span>
+                  </FormLabel>
                   <CustomSelect
                     options={mangaType}
                     placeholder="Type"
@@ -157,7 +216,7 @@ export default function UploadMangaPage() {
                     {...field}
                   />
                   <FormDescription className="text-red-500">
-                    {errors.tags?.message}
+                    {errors.type?.message}
                   </FormDescription>
                 </FormItem>
               )}
@@ -167,10 +226,20 @@ export default function UploadMangaPage() {
               name="coverImage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cover image</FormLabel>
-                  <Input name={field.name} type="file" className="input" />
+                  <FormLabel className="gap-0">
+                    Cover image<span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Input
+                    accept="image/*"
+                    name={field.name}
+                    onChange={(e) =>
+                      handleImageChange(field.name, e.target.files?.[0])
+                    }
+                    type="file"
+                    className="input"
+                  />
                   <FormDescription className="text-red-500">
-                    {errors.tags?.message}
+                    {errors.coverImage?.message}
                   </FormDescription>
                 </FormItem>
               )}
@@ -181,9 +250,17 @@ export default function UploadMangaPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Background</FormLabel>
-                  <Input type="file" name={field.name} className="input" />
+                  <Input
+                    accept="image/*"
+                    type="file"
+                    name={field.name}
+                    className="input"
+                    onChange={(e) =>
+                      handleImageChange(field.name, e.target.files?.[0])
+                    }
+                  />
                   <FormDescription className="text-red-500">
-                    {errors.tags?.message}
+                    {errors.backgroundImage?.message}
                   </FormDescription>
                 </FormItem>
               )}
@@ -195,13 +272,7 @@ export default function UploadMangaPage() {
         </Form>
       </div>
 
-      {/* preview component */}
-      <div className="hidden md:flex md:w-1/2 lg:w-3/5">
-        <h2 className="my-2 text-2xl">Preview</h2>
-        <div className="w-full">
-          <img src="" alt="" className="w-full" />
-        </div>
-      </div>
+      <PreviewManga previewItem={handleConvertPreviewItem()} />
     </div>
   );
 }
