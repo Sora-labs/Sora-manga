@@ -13,6 +13,8 @@ export default async function LatestMangas() {
     }
     return listOfLatestMangas.map((manga) => (
       <MangaCard
+        key={manga._id}
+        id={manga._id}
         name={manga.name}
         cover_url={manga.cover_url}
         tags={manga.tags}

@@ -16,10 +16,11 @@ import { Input } from "@/components/ui/input";
 import CustomSelect from "@/components/CustomSelect";
 import { mangaType } from "@/constant";
 import { Button } from "@/components/ui/button";
-import PreviewManga, { PreviewItem } from "@/components/Preview/PreviewManga";
+import PreviewManga from "@/components/Preview/PreviewManga";
 import { Textarea } from "@/components/ui/textarea";
 import { convertFileObjectToImage } from "@/app/_utils";
 import { redirect } from "next/navigation";
+import { MangaDetail } from "@/components/MangaDetail/MangaDetail";
 
 const createMangaSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -112,7 +113,7 @@ export default function UploadMangaPage() {
 
   const handleConvertPreviewItem = useCallback(() => {
     const previewData = getValues();
-    const convertData: PreviewItem = {
+    const convertData: MangaDetail = {
       title: previewData.name,
       description: previewData.description,
       coverImage: convertFileObjectToImage(previewData.coverImage),

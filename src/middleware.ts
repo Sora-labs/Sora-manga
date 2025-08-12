@@ -2,10 +2,10 @@ import { NextResponse, NextRequest } from 'next/server'
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
-  const nonauthorizedAPI = ["/api/auth/login", "/api/auth/register", "/api/latest-mangas"]
+  const nonauthorizedAPI = ["/api/auth/login", "/api/auth/register", "/api/latest-mangas", "/api/mangas/"]
 
   const { pathname } = request.nextUrl;
-  if (nonauthorizedAPI.includes(pathname)) {
+  if (nonauthorizedAPI.filter(api => api.startsWith(pathname))) {
     return;
   }
 
