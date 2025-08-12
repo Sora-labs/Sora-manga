@@ -12,7 +12,7 @@ const createSchema = z.object({
   name: z.string().min(1, "Manga name is required"),
   description: z.string().optional(),
   cover_image: imageSchema.refine(
-    (file) => file.size < 800 * KB,
+    (file) => file.size < 2 * MB,
     {
       message: "Cover image must be less than 800KB",
     }),
