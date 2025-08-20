@@ -8,7 +8,7 @@ export const handleShowFieldErrors = (errors: any[], funcSetError: Function) => 
   });
 }
 
-export const convertFileObjectToImage = (file?: File) => {
+export const convertFileObjectToImage = (file?: File | null) => {
   if (!file) return ""
   return URL.createObjectURL(file)
 }

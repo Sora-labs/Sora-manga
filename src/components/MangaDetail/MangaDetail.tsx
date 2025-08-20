@@ -52,9 +52,9 @@ export function MangaDetail(props: MangaDetail) {
                 <span className="font-semibold">Tags:</span>
                 <p>
                   {tags
-                    .map((tag) => tag.label ?? "")
-                    .filter((tag) => tag)
-                    .join(", ")}
+                    ?.map((tag) => tag.label ?? "")
+                    ?.filter((tag) => tag)
+                    ?.join(", ")}
                 </p>
               </li>
               <li className="flex gap-1">

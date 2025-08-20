@@ -1,5 +1,4 @@
 "use client";
-import { handleShowFieldErrors } from "@/app/_utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -9,10 +8,9 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { LOCAL_STORAGE_KEYS } from "@/constant/localStorageKeys";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -36,6 +34,7 @@ const Login = () => {
     },
     mode: "onChange",
   });
+  const router = useRouter();
   const {
     handleSubmit,
     control,
@@ -65,15 +64,8 @@ const Login = () => {
       });
       return;
     }
-    localStorage.setItem(
-      LOCAL_STORAGE_KEYS.ACCESS_TOKEN,
-      response.data.access_token
-    );
-    localStorage.setItem(
-      LOCAL_STORAGE_KEYS.REFRESH_TOKEN,
-      response.data.refresh_token
-    );
-    redirect("/");
+    router.replace("/");
+    router.refresh();
   });
 
   return (

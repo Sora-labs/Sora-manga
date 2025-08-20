@@ -3,6 +3,7 @@ import { z } from "zod";
 import User from "@/lib/models/user";
 import { compareHash, genToken } from "@/utils";
 import dbConnect from "@/lib/db";
+import { cookies } from "next/headers";
 
 const RegisterSchema = z.object({
   username: z.string().min(1, "Username is required").min(6, "Username must have at least 6 characters"),
@@ -45,13 +46,27 @@ export async function POST(request: NextRequest) {
         message: "Login failed",
       }, { status: 400 });
     }
-
+    const { set } = await cookies()
+    const accessToken = genToken({ userId: existingUser._id }, "5m")
+    const refreshToken = genToken({ userId: existingUser._id }, "7d")
+    set("access_token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",   // must allow the path you're calling from
+    })
+    set("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",   // must allow the path you're calling from
+    })
     return NextResponse.json({
       message: "Login successful",
       data: {
         is_success: true,
-        access_token: genToken({ userId: existingUser._id }, "5m"),
-        refresh_token: genToken({ userId: existingUser._id }, "7d"),
+        access_token: accessToken,
+        refresh_token: refreshToken,
       }
     });
   }

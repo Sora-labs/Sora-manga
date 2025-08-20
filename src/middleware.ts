@@ -1,30 +1,34 @@
+import { cookies } from 'next/headers';
 import { NextResponse, NextRequest } from 'next/server'
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
-  const nonauthorizedAPI = ["/api/auth/login", "/api/auth/register", "/api/latest-mangas", "/api/mangas/"]
+  const response = NextResponse.next()
+  const nonauthorizedAPI = [/^\/api\/auth\/login$/,
+    /^\/api\/auth\/register$/,
+    /^\/api\/latest-mangas$/,
+    /^\/api\/tags$/,
+    /^\/api\/mangas(\/.*)?$/
+  ]
+
 
   const { pathname } = request.nextUrl;
-  if (nonauthorizedAPI.filter(api => api.startsWith(pathname))) {
+  console.log(pathname, request.nextUrl);
+
+  if (nonauthorizedAPI.some(api => api.test(pathname))) {
     return;
   }
 
-  // verify JWT token
-  // jwt.verify(request.headers.get("authorization")?.split(" ")[1] || "", process.env.NEXT_TOKEN_SECRET ?? "", (err) => {
-  //   if (err) {
-  //     console.error("JWT verification failed:", err);
-  //     return NextResponse.json({
-  //       message: "Unauthorized access",
-  //     }, { status: 401 });
-  //   }
-  // })
+  const { get } = await cookies()
+  const token = get("access_token")
+  console.log("access_token", get("access_token"));
 
-  const header = request.headers.get("authorization");
-  if (!header) {
-    return NextResponse.json({ message: "Authorization header is missing" }, { status: 401 });
+  if (!token) {
+    return NextResponse.json({ message: "Authorization cookie is missing" }, { status: 401 });
   }
-
-  return;
+  response.headers.set("Access-Control-Allow-Credentials", "true")
+  response.headers.set("Access-Control-Allow-Origin", request.headers.get("origin") || "*")
+  return response;
 }
 
 export const config = {

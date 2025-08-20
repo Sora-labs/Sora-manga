@@ -1,3 +1,4 @@
+import "@/lib/models/tag";
 import MangaCard from "../MangaCard";
 
 export default async function LatestMangas() {
@@ -25,7 +26,9 @@ export default async function LatestMangas() {
   return (
     <div className="mx-4 my-2">
       <div className="text-lg mb-4 font-bold">Latest manga</div>
-      <div className="grid grid-cols-5 gap-4">{handleRenderMangaList()}</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {handleRenderMangaList()}
+      </div>
     </div>
   );
 }

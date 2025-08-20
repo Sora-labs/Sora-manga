@@ -5,7 +5,6 @@ import { z } from "zod";
 import fs from "fs/promises";
 import MangaModel from "@/lib/models/manga";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 import dbConnect from "@/lib/db";
 
 const createSchema = z.object({

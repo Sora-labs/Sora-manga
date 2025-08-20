@@ -20,8 +20,8 @@ export const MENU_ITEMS: MenuItem[] = [
     href: "/tags",
   },
   {
-    label: "About",
-    href: "/about",
+    label: "Account",
+    href: "/account",
   },
 ]
 

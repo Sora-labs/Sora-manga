@@ -1,5 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { LOCAL_STORAGE_KEYS } from '@/constant/localStorageKeys';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 interface IApiResponse {
   // internal error from server
@@ -10,17 +9,14 @@ interface IApiResponse {
   fileNameFromServer?: string;
   contentType?: string;
 }
-let logsRequestsRetry: string[] = [];
-axios.interceptors.request.use(
-  (config: any) => {
-    const token = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+const baseAxios = axios.create({
+  baseURL: process.env.NEXT_BASE_APP_URL,
+})
 
-    if (token && typeof token === 'string' && token.length > 0) {
-      config.headers = {
-        Authorization: `Bearer ${token}`,
-      };
-    }
-    return config;
+baseAxios.interceptors.request.use(
+  (config) => {
+    config.withCredentials = true;
+    return config
   },
   (error) => {
     console.log(error);
@@ -28,7 +24,7 @@ axios.interceptors.request.use(
   },
 );
 
-axios.interceptors.response.use(
+baseAxios.interceptors.response.use(
   (res: AxiosResponse<IApiResponse>): any => {
     const disposition = res.headers['content-disposition'];
     let fileName = '';
@@ -72,60 +68,53 @@ axios.interceptors.response.use(
     }
     return Promise.resolve(res.data);
   },
-  (error: AxiosError) => {
-    if (!axios.isCancel(error)) {
-      const newError = error as AxiosError;
-      if (newError.response) {
-        const status = newError?.response?.status;
-        const originalRequest = newError.config;
-        if (status === 401 && logsRequestsRetry.length == 0) {
-          handleRenewToken(originalRequest);
-        } else {
-          logsRequestsRetry = [];
-        }
-      }
+  async (error: any) => {
+    // ignore refresh calls
+    if (error.config?.url?.includes('/api/auth/refresh')) {
+      return Promise.reject(error);
     }
+
+    if (error.response?.status === 401 && !error.config?._retry) {
+      error.config._retry = true;
+      await axios.post(
+        `/api/auth/refresh`,
+        null,
+        { withCredentials: true }
+      );
+
+      return axios(error.config as any);
+    }
+
     return Promise.reject(error);
+    // if (!axios.isCancel(error)) {
+    //   const newError = error as AxiosError;
+    //   if (newError.response) {
+    //     const status = newError?.response?.status;
+    //     const originalRequest: any = newError.config;
+    //     if (status === 401 && !originalRequest?._retry) {
+    //       handleRenewToken(originalRequest);
+    //     }
+    //   }
+    // }
+    // return Promise.reject(error);
   },
 );
-
-const handleRenewToken = async (originalRequest: any) => {
-  originalRequest._retry = true;
-  const refreshToken: string = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN) as string;
-  if (!refreshToken) {
-    return;
-  }
-  logsRequestsRetry.push(`/auth/refresh-token`);
-  axios
-    .post(`/auth/refresh-token`, {
-      idRefreshToken: refreshToken,
-    })
-    .then((response: any) => {
-      if (response?.code == 1) {
-        localStorage.setItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN, response.data.id_token);
-        localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, response.data.id_refresh_token);
-        logsRequestsRetry = [];
-      }
-      return axios(originalRequest);
-    })
-
-};
 
 const controller = new AbortController();
 
 
 const get = (url: string, queryParams?: object, responseType?: 'blob' | 'json'
 ) => {
-  return axios.get(url, {
+  return baseAxios.get(url, {
     params: queryParams,
     responseType: responseType || 'json',
     signal: controller.signal,
   })
 }
 
-const post = (url: string, data: object, queryParams?: object, responseType?: 'blob' | 'json'
+const post = (url: string, data: object | null, queryParams?: object, responseType?: 'blob' | 'json'
 ) => {
-  return axios.post(url, data, {
+  return baseAxios.post(url, data, {
     params: queryParams,
     responseType: responseType || 'json',
     signal: controller.signal,
@@ -134,7 +123,7 @@ const post = (url: string, data: object, queryParams?: object, responseType?: 'b
 
 const put = (url: string, data: object, queryParams?: object, responseType?: 'blob' | 'json'
 ) => {
-  return axios.put(url, data, {
+  return baseAxios.put(url, data, {
     params: queryParams,
     responseType: responseType || 'json',
     signal: controller.signal,

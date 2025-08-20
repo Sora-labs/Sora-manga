@@ -7,9 +7,6 @@ export default function LoginLayout({
 }>) {
   return (
     <div className="flex flex-col h-screen">
-      <div className="px-2">
-        <Logo></Logo>
-      </div>
       <div className="flex flex-col items-center justify-center h-full">
         {children}
       </div>
