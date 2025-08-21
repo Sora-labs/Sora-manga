@@ -29,6 +29,7 @@ export default function MangasByUploader() {
         name={manga.name}
         cover_url={manga.cover_url}
         tags={manga.tags}
+        showAction
       />
     ));
   };
