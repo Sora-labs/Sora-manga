@@ -38,7 +38,6 @@ export default function Register() {
       password: "",
       confirmPassword: "",
     },
-    mode: "onChange",
   });
 
   const {

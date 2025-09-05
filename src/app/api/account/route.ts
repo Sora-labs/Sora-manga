@@ -6,7 +6,7 @@ import dbConnect from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
-    await dbConnect()
+
     const { get } = await cookies()
     const accessToken = get("access_token")!
     console.log("access token", accessToken);

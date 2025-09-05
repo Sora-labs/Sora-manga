@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { convertFileObjectToImage } from "@/app/_utils";
 import { redirect } from "next/navigation";
 import { MangaDetail } from "@/components/MangaDetail/MangaDetail";
+import MangaPageDialog from "@/components/MangaPageDialog/MangaPageDialog";
 
 const createMangaSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -132,7 +133,7 @@ export default function UploadMangaPage() {
   };
 
   return (
-    <div className="flex mt-12 py-2 gap-4">
+    <div className="flex my-12 py-2 gap-4">
       <div className="px-3 w-full md:w-1/2 lg:w-2/5">
         <h1 className="my-2 text-2xl">Upload a new manga</h1>
         <p className="text-sm text-gray-500 mb-2">

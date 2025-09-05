@@ -6,7 +6,7 @@ import dbConnect from "@/lib/db"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await dbConnect()
+
     const { id } = await params
     const result = await MangaModel.findOne({ _id: id }).populate("tags").populate("uploaderId", "username")
     console.log(id);

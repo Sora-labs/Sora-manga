@@ -4,6 +4,7 @@ import api from "@/app/_services/api";
 import { convertFileObjectToImage } from "@/app/_utils";
 import CustomSelect from "@/components/CustomSelect";
 import { MangaDetail } from "@/components/MangaDetail/MangaDetail";
+import MangaPageDialog from "@/components/MangaPageDialog/MangaPageDialog";
 import PreviewManga from "@/components/Preview/PreviewManga";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +48,6 @@ const EditMangaPage = () => {
     getValues,
     watch,
   } = formProps;
-  watch();
   const [tagOptions, setTagOptions] = useState<any[]>([]);
   const handleImageChange = (field: any, file?: File) => {
     setValue(field, file);
@@ -269,6 +269,7 @@ const EditMangaPage = () => {
             </Button>
           </form>
         </Form>
+        <MangaPageDialog title={getValues().name} mangaId={id as string} />
       </div>
 
       <PreviewManga previewItem={handleConvertPreviewItem()} />

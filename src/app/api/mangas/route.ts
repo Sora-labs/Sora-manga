@@ -22,7 +22,6 @@ const createSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect();
     const formData = await request.formData();
 
     // handle format form data

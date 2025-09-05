@@ -32,7 +32,6 @@ const Login = () => {
       username: "",
       password: "",
     },
-    mode: "onChange",
   });
   const router = useRouter();
   const {
@@ -43,7 +42,6 @@ const Login = () => {
   } = formProps;
 
   const onSubmit = handleSubmit(async (data: any) => {
-    console.log(data);
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
