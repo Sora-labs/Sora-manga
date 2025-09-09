@@ -16,6 +16,10 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: "home",
   },
   {
+    label: "About",
+    href: "/about",
+  },
+  {
     label: "Tags",
     href: "/tags",
   },
