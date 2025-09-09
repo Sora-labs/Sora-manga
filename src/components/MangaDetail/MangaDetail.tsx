@@ -7,6 +7,7 @@ export interface MangaDetail {
   type: string;
   uploader?: string;
   uploadDate?: string;
+  totalPages?: number;
 }
 
 export function MangaDetail(props: MangaDetail) {
@@ -19,6 +20,7 @@ export function MangaDetail(props: MangaDetail) {
     description,
     uploadDate,
     uploader,
+    totalPages,
   } = props;
 
   return (
@@ -69,6 +71,12 @@ export function MangaDetail(props: MangaDetail) {
                 <span className="font-semibold">Type:</span>
                 {type}
               </li>
+              {totalPages ? (
+                <li className="flex gap-1">
+                  <span className="font-semibold">Pages:</span>
+                  {totalPages}
+                </li>
+              ) : null}
             </ul>
           </div>
         </div>

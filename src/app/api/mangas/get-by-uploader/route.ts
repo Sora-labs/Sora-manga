@@ -6,7 +6,6 @@ import dbConnect from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
-
     const { searchParams } = new URL(request.url);
     const { get } = await cookies()
     const token = get("access_token")?.value!

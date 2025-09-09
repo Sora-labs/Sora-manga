@@ -23,6 +23,7 @@ import { Form, FormDescription, FormField, FormItem } from "../ui/form";
 import { Input } from "../ui/input";
 import { convertFileObjectToImage } from "@/app/_utils";
 import { Circle, CircleXIcon, FolderClosedIcon } from "lucide-react";
+import api from "@/app/_services/api";
 
 interface MangaPageDialogProps {
   title: string;
@@ -33,7 +34,6 @@ const pageSchema = z
   .object({
     pages: z.array(
       z.object({
-        id: z.string(),
         image: imageSchema.nullable(),
         pageNum: z.string().min(1, "Page number must be at least 1"),
       })
@@ -62,7 +62,7 @@ const MangaPageDialog = (props: MangaPageDialogProps) => {
     defaultValues: {
       pages: [],
     },
-    mode: "onChange",
+    mode: "onSubmit",
   });
   const {
     setValue,
@@ -74,9 +74,20 @@ const MangaPageDialog = (props: MangaPageDialogProps) => {
 
   console.log("add page errors", errors, getValues());
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit(async (data) => {
     console.log("Submitted data:", data);
-    // Handle the submission logic here
+    const formData = new FormData();
+    if (data.pages.length > 0) {
+      data.pages.forEach((page, index) => {
+        formData.append(`pages[${index}].pageNum`, page.pageNum);
+        formData.append(`pages[${index}].image`, page.image as File);
+      });
+      const result = await api.post(`/api/pages/${mangaId}`, formData);
+      console.log("API response:", result.data);
+      if (result.data.is_success) {
+        alert("Pages uploaded successfully");
+      }
+    }
   });
 
   return (
@@ -93,7 +104,7 @@ const MangaPageDialog = (props: MangaPageDialogProps) => {
             <DialogHeader>
               <DialogTitle>{title}</DialogTitle>
             </DialogHeader>
-            <PageGridContainer control={control} mangaId={mangaId} />
+            <PageGridContainer control={control} />
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
@@ -109,13 +120,13 @@ const MangaPageDialog = (props: MangaPageDialogProps) => {
 
 interface PageGridContainerProps {
   control: any;
-  mangaId: string;
 }
 const PageGridContainer = (props: PageGridContainerProps) => {
-  const { control, mangaId } = props;
+  const { control } = props;
   const {
     setValue,
     watch,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
   console.log(watch("pages"));
@@ -127,7 +138,6 @@ const PageGridContainer = (props: PageGridContainerProps) => {
 
   const handleClickAddPage = () => {
     append({
-      id: mangaId,
       image: null,
       pageNum: String(fields.length + 1),
     });
@@ -157,21 +167,31 @@ const PageGridContainer = (props: PageGridContainerProps) => {
               control={control}
               name={`pages.${index}.image`}
               render={({ field: inputField }) => (
-                <Input
-                  type="file"
-                  accept="image/*"
-                  placeholder=""
-                  name={inputField.name}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      update(index, {
-                        ...field,
-                        image: file,
-                      });
-                    }
-                  }}
-                />
+                <FormItem>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    placeholder=""
+                    name={inputField.name}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        update(index, {
+                          ...field,
+                          image: file,
+                        });
+                        clearErrors(`pages.${index}.image`);
+                      }
+                    }}
+                  />
+                  <FormDescription>
+                    {pageError?.[index]?.image && (
+                      <span className="text-red-500">
+                        {pageError[index]?.image?.message as string}
+                      </span>
+                    )}
+                  </FormDescription>
+                </FormItem>
               )}
             />
             <FormField

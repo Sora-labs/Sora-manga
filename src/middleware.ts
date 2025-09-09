@@ -8,9 +8,9 @@ export async function middleware(request: NextRequest) {
     /^\/api\/auth\/register$/,
     /^\/api\/latest-mangas$/,
     /^\/api\/tags$/,
-    /^\/api\/mangas(\/.*)?$/
+    /^\/api\/mangas(\/.*)?$/,
+    /^\/api\/pages(\/.*)?$/
   ]
-
 
   const { pathname } = request.nextUrl;
   console.log(pathname, request.nextUrl);

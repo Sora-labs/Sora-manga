@@ -5,7 +5,7 @@ import { z } from "zod";
 import fs from "fs/promises";
 import MangaModel from "@/lib/models/manga";
 import jwt from "jsonwebtoken";
-import dbConnect from "@/lib/db";
+import { cookies } from "next/headers";
 
 const createSchema = z.object({
   name: z.string().min(1, "Manga name is required"),
@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
     }
 
     // get userId from request headers
-    const token = request.headers.get("authorization")?.split(" ")[1];
+    const { get } = await cookies()
+    const token = get("access_token")?.value;
     const jwtPayload = jwt.decode(token ?? "") as any;
     console.log("Decoded JWT payload:", jwtPayload);
     const userId = jwtPayload.userId;
