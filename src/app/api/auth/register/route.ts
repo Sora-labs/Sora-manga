@@ -11,6 +11,7 @@ const RegisterSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    await dbConnect()
     const body = await request.json()
     console.log(body);
 

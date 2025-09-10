@@ -1,8 +1,10 @@
+import dbConnect from "@/lib/db";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server"
 
 export const POST = async () => {
   try {
+    await dbConnect()
     const { delete: deleteCookie } = await cookies()
     deleteCookie("access_token");
     deleteCookie("refresh_token");

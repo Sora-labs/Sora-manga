@@ -6,6 +6,7 @@ import fs from "fs/promises";
 import MangaModel from "@/lib/models/manga";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import dbConnect from "@/lib/db";
 
 const createSchema = z.object({
   name: z.string().min(1, "Manga name is required"),
@@ -22,6 +23,7 @@ const createSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    await dbConnect()
     const formData = await request.formData();
 
     // handle format form data
@@ -94,6 +96,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    await dbConnect()
     const bodyData = await request.json();
     console.log("Received data for update:", bodyData);
 

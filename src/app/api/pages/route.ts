@@ -1,9 +1,11 @@
+import dbConnect from "@/lib/db"
 import Page from "@/lib/models/page"
 import mongoose from "mongoose"
 import { NextRequest, NextResponse } from "next/server"
 
 export const GET = async (request: NextRequest) => {
   try {
+    await dbConnect()
     const { searchParams } = new URL(request.url)
 
     const id = searchParams.get("mangaId");

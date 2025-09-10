@@ -2,9 +2,11 @@ import { genToken } from "@/utils";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken"
+import dbConnect from "@/lib/db";
 
 export async function POST() {
   try {
+    await dbConnect();
     const { get, set } = await cookies()
     const oldAccessToken = get("access_token")?.value;
     const refreshToken = get("refresh_token")?.value;

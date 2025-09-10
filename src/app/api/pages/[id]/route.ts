@@ -2,6 +2,7 @@ import Manga from "@/lib/models/manga";
 import { NextRequest, NextResponse } from "next/server"
 import fs from "fs/promises";
 import Page from "@/lib/models/page";
+import dbConnect from "@/lib/db";
 
 function formatFormData(formData: FormData) {
   const pages: { pageNum: number; image: File }[] = [];
@@ -18,6 +19,7 @@ function formatFormData(formData: FormData) {
 
 export const GET = async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
+    await dbConnect()
     const { id } = await params
 
     const result = await Page.findById(id)
@@ -33,6 +35,7 @@ export const GET = async (request: NextRequest, { params }: { params: Promise<{ 
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    await dbConnect()
     const formData = await request.formData()
     const pages = formatFormData(formData);
     console.log(pages)
@@ -72,6 +75,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 export const PUT = async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
+    await dbConnect()
     const { id } = await params
     const body = await request.json()
 

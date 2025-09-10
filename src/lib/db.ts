@@ -24,6 +24,4 @@ async function dbConnect() {
   return cached.conn
 }
 
-dbConnect().catch(err => console.log(err));
-
 export default dbConnect;

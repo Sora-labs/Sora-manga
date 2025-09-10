@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import MangaModel from "@/lib/models/manga"
+import dbConnect from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
+    await dbConnect()
     const result = await MangaModel.find().sort({ createdAt: "descending" }).populate("tags", "name").limit(10)
     return NextResponse.json({
       message: "Get 10 latest mangas",
