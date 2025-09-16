@@ -4,15 +4,29 @@ import dbConnect from "@/lib/db";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const tags = await TagModel.find();
+    await dbConnect()
+    const { searchParams } = new URL(request.url)
+    const page = searchParams.get("page");
+    const pageSize = searchParams.get("pageSize");
+
+    if (!page && !pageSize) {
+      return NextResponse.json({ error: "Missing page or page size" }, { status: 400 })
+    }
+    const totalData = await TagModel.aggregate([{ $count: "name" }])
+    const tags = await TagModel.aggregate([
+      { $sort: { createdAt: -1 } },
+      { $skip: Number(page) * Number(pageSize) - Number(pageSize) },
+      { $limit: Number(pageSize) },
+    ]);
 
     return NextResponse.json({
       message: "Tags fetched successfully",
       data: {
         is_success: true,
-        tags,
+        data: tags,
+        total_data: totalData[0].name,
       },
     }, { status: 200 });
   } catch (error) {

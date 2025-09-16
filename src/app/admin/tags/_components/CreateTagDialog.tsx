@@ -15,6 +15,8 @@ import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 
 interface CreateTagDialogProps {
+  reloadTable: boolean;
+  setReloadTable: (reload: boolean) => void;
   setOpen: (open: boolean) => void;
 }
 
@@ -24,7 +26,7 @@ const tagSchema = z.object({
 });
 
 export default function CreateTagDialog(props: CreateTagDialogProps) {
-  const { setOpen } = props;
+  const { setOpen, setReloadTable, reloadTable } = props;
   const formProps = useForm({
     defaultValues: {
       name: "",
@@ -53,6 +55,7 @@ export default function CreateTagDialog(props: CreateTagDialogProps) {
       if (response.data?.is_success) {
         setOpen(false);
         closeForm();
+        setReloadTable(!reloadTable);
       }
     } catch (error) {
       const response = (error as any).response;

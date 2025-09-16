@@ -60,7 +60,7 @@ export default async function AdminLayout({
             <AdminSidebar />
             <main className="w-full">
               <AdminHeader />
-              {children}
+              <div className="py-14">{children}</div>
             </main>
           </SidebarProvider>
         </ThemeProvider>
