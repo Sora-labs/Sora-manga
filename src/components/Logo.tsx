@@ -9,3 +9,7 @@ export default function Logo() {
     </div>
   );
 }
+
+export function LogoIcon() {
+  return <Image src={logo} alt="Sora" width={32} height={32} />;
+}

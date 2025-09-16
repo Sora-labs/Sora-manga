@@ -77,7 +77,7 @@ baseAxios.interceptors.response.use(
     if (error.response?.status === 401 && !error.config?._retry) {
       error.config._retry = true;
       await axios.post(
-        `/api/auth/refresh`,
+        `${process.env.NEXT_BASE_APP_URL}/api/auth/refresh`,
         null,
         { withCredentials: true }
       );

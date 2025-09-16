@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { notFound, redirect, useRouter } from "next/navigation";
-import api from "../_services/api";
+import api from "../../_services/api";
 import { useEffect, useState } from "react";
 
 export default function AccountPage() {

@@ -33,3 +33,10 @@ export const mangaType = [
   { id: "series", name: "Series" },
   { id: "oneshot", name: "Oneshot" }
 ]
+
+export const adminRoles = [
+  "new admin",
+  "admin",
+  "core admin",
+  "owner",
+]
