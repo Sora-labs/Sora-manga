@@ -69,7 +69,7 @@ export default function UploadMangaPage() {
 
         if (response.data.is_success) {
           setTagOptions(
-            response.data.tags.map((tag: any) => ({
+            response.data.data.map((tag: any) => ({
               value: tag._id,
               label: tag.name,
             }))
@@ -93,7 +93,7 @@ export default function UploadMangaPage() {
     const tags = data.tags;
     tags.forEach((tag) => formData.append(`tags`, tag));
     formData.append("cover_image", data.coverImage as Blob);
-    formData.append("background_image", data.coverImage as Blob);
+    formData.append("background_image", data.backgroundImage as Blob);
     const response = await api.post("/api/mangas", formData);
     setLoading(false);
     if (!response.data?.is_success) {
@@ -195,6 +195,7 @@ export default function UploadMangaPage() {
                     placeholder="Select tags"
                     className="input"
                     name="tags"
+                    hideSelectAll
                   />
                   <FormDescription className="text-red-500">
                     {errors.tags?.message}

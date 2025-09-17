@@ -12,7 +12,14 @@ export async function GET(request: NextRequest) {
     const pageSize = searchParams.get("pageSize");
 
     if (!page && !pageSize) {
-      return NextResponse.json({ error: "Missing page or page size" }, { status: 400 })
+      const tags = await TagModel.find()
+      return NextResponse.json({
+        data: {
+          is_success: true,
+          data: tags,
+        }
+      })
+      // return NextResponse.json({ error: "Missing page or page size" }, { status: 400 })
     }
     const totalData = await TagModel.aggregate([{ $count: "name" }])
     const tags = await TagModel.aggregate([

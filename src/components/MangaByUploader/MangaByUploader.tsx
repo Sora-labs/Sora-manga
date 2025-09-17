@@ -24,6 +24,7 @@ export default function MangasByUploader() {
 
     return uploaderMangas.map((manga) => (
       <MangaCard
+        description={manga.description}
         key={manga._id}
         id={manga._id}
         name={manga.name}
