@@ -22,6 +22,8 @@ import { convertFileObjectToImage } from "@/app/_utils";
 import { redirect } from "next/navigation";
 import { MangaDetail } from "@/components/MangaDetail/MangaDetail";
 import MangaPageDialog from "@/components/MangaPageDialog/MangaPageDialog";
+import { Loader2Icon } from "lucide-react";
+import LoadingButton from "@/components/Buttons/LoadingButton";
 
 const createMangaSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -268,9 +270,9 @@ export default function UploadMangaPage() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
+            <LoadingButton loading={loading} className="w-full" type="submit">
               Upload
-            </Button>
+            </LoadingButton>
           </form>
         </Form>
       </div>

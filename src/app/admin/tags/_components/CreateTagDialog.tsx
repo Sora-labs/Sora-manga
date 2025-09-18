@@ -1,6 +1,7 @@
 "use client";
 import api from "@/app/_services/api";
 import { handleShowFieldErrors } from "@/app/_utils";
+import LoadingButton from "@/components/Buttons/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { DialogClose } from "@/components/ui/dialog";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -26,6 +28,7 @@ const tagSchema = z.object({
 });
 
 export default function CreateTagDialog(props: CreateTagDialogProps) {
+  const [loading, setLoading] = useState(false);
   const { setOpen, setReloadTable, reloadTable } = props;
   const formProps = useForm({
     defaultValues: {
@@ -107,9 +110,13 @@ export default function CreateTagDialog(props: CreateTagDialogProps) {
           <Button type="button" className="cursor-pointer">
             <DialogClose>Close</DialogClose>
           </Button>
-          <Button className="cursor-pointer" type="submit">
+          <LoadingButton
+            className="cursor-pointer"
+            type="submit"
+            loading={loading}
+          >
             Save
-          </Button>
+          </LoadingButton>
         </div>
       </form>
     </FormProvider>

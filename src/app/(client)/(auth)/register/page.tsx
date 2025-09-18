@@ -14,6 +14,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { handleShowFieldErrors } from "@/app/_utils";
+import { useState } from "react";
+import { Loader2Icon } from "lucide-react";
+import LoadingButton from "@/components/Buttons/LoadingButton";
 
 const registerSchema = z.object({
   username: z
@@ -31,6 +34,7 @@ const registerSchema = z.object({
 });
 
 export default function Register() {
+  const [loading, setLoading] = useState(false);
   const formProps = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -60,6 +64,8 @@ export default function Register() {
       username: data.username,
       password: data.password,
     };
+
+    setLoading(true);
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: {
@@ -67,7 +73,7 @@ export default function Register() {
       },
       body: JSON.stringify(payload),
     }).then((r) => r.json());
-
+    setLoading(false);
     if (!response.data?.is_success) {
       console.log("Register error", response);
 
@@ -139,9 +145,7 @@ export default function Register() {
               </FormItem>
             )}
           />
-          <Button className="w-full" type="submit">
-            Register
-          </Button>
+          <LoadingButton loading={loading}>Register</LoadingButton>
         </form>
       </Form>
       <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">

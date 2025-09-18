@@ -1,4 +1,5 @@
 "use client";
+import LoadingButton from "@/components/Buttons/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -11,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -26,6 +28,7 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
   const formProps = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -42,6 +45,7 @@ const Login = () => {
   } = formProps;
 
   const onSubmit = handleSubmit(async (data: any) => {
+    setLoading(true);
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
@@ -49,7 +53,7 @@ const Login = () => {
       },
       body: JSON.stringify(data),
     }).then((r) => r.json());
-
+    setLoading(false);
     if (!response.data?.is_success) {
       // show errors on both fields even if just one field has an error
       setError("username", {
@@ -107,9 +111,9 @@ const Login = () => {
               </FormItem>
             )}
           />
-          <Button className="w-full" type="submit">
+          <LoadingButton loading={loading} className="w-full" type="submit">
             Login
-          </Button>
+          </LoadingButton>
         </form>
       </Form>
       <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
